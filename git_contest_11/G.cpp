@@ -4,24 +4,23 @@
 #include <queue>
 
 
-struct Node
-{
-    std::vector<int32_t> indexes;
-	int32_t to[26];
-    int32_t height = 0;
-	int32_t link = -1;
-    bool mark = false;
-
-	Node(int height) : height(height), link(-1) 
-	{
-		for (int i = 0; i < 26; ++i) to[i] = -1;
-	}
-};
-
-
 class Trie
 {
 private:
+    struct Node
+    {
+        std::vector<int32_t> indexes;
+    	int32_t to[26];
+        int32_t height = 0;
+    	int32_t link = -1;
+        bool mark = false;
+
+	    Node(int height) : height(height), link(-1) 
+    	{
+	    	for (int i = 0; i < 26; ++i) to[i] = -1;
+	    }
+    };
+
 	const int ALPHABET_SIZE = 2;
 	const int STARTING_SYMBOL = '0';
 	std::vector<Node> trie;
@@ -155,23 +154,7 @@ public:
             if (used[trie[stack.back().first].to[stack.back().second-1]] == 2) continue;
             stack.push_back(std::make_pair(trie[stack.back().first].to[stack.back().second-1],0));
         }
-        /*
-cl[v] = 1;
-	for (size_t i=0; i<g[v].size(); ++i) {
-		int to = g[v][i];
-		if (cl[to] == 0) {
-			p[to] = v;
-			if (dfs (to))  return true;
-		}
-		else if (cl[to] == 1) {
-			cycle_end = v;
-			cycle_st = to;
-			return true;
-		}
-	}
-	cl[v] = 2;
-	return false;        
-        */
+
         return false;
     }
 };
@@ -186,24 +169,17 @@ int main()
     Trie t;
     int N = 0;
 
-    if (1)
+   std::cin >> N;
+    for (int i = 0; i < N; ++i)
 	{
-	    std::cin >> N;
-		for (int i = 0; i < N; ++i)
-		{
-			std::string T;
-			std::cin >> T;
-            t.add_word(T, i);
-		}
+		std::string T;
+		std::cin >> T;
+        t.add_word(T, i);
 	}
-	else
-	{
-        N = 3;
-       	t.add_word("011", 0); t.add_word("11", 1); t.add_word("0000", 1);
-	}
+
 	t.aho_corasick();
-    std::cout << t;
-    if (t.is_infinite()) //N > 205 && t.size() > 2000
+    //std::cout << t;
+    if (t.is_infinite())
         std::cout << "TAK";
     else
         std::cout << "NIE";

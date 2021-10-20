@@ -5,31 +5,26 @@
 #include <algorithm>
 
 
-struct Node
-{
-	int term = 0;
-	int par = 0;
-	int symbol = 0;
-	std::vector<int> edge;
-
-	/*
-	int link = -1;
-	std::vector<int> to;
-	*/
-
-	Node(int ALPHABET_SIZE, int symbol, int parent) : term(0), par(parent), symbol(symbol), edge(ALPHABET_SIZE, -1)/*, link(-1), to(ALPHABET_SIZE, -1)*/ {}
-};
-
 
 class Trie
 {
 private:
-	const int ALPHABET_SIZE = 26;
+    struct Node
+    {
+	    int term = 0;
+    	int par = 0;
+	    int symbol = 0;
+    	std::vector<int> edge;
+
+	    Node(int ALPHABET_SIZE, int symbol, int parent) : par(parent), symbol(symbol), edge(ALPHABET_SIZE, -1) {}
+    };
+
+    const int ALPHABET_SIZE = 26;
 	const int STARTING_SYMBOL = 'a';
 	std::vector<Node> trie;
 
 public:
-	struct iterator
+   	struct iterator
 	{
 		int index = -1;
 		int n = 1;
@@ -101,6 +96,7 @@ public:
 		{
 			return index == it2.index && n == it2.n;
 		}
+
 		bool operator!=(const iterator& it2) const
 		{
 			return !(*this == it2);
@@ -134,17 +130,10 @@ public:
 		int current_node = 0;
 		for (const char& c : S)
 		{
-			if (trie[current_node].edge[c - STARTING_SYMBOL] != -1)
-			{
-				current_node = trie[current_node].edge[c - STARTING_SYMBOL];
-			}
-			else
-			{
-				return 0;
-			}
+			if (trie[current_node].edge[c - STARTING_SYMBOL] == -1) return 0;
+			current_node = trie[current_node].edge[c - STARTING_SYMBOL];
 		}
-		if (trie[current_node].term > 0) return current_node;
-		return 0;
+		return (trie[current_node].term > 0) ? current_node : 0;
 	}
 
 	bool remove_word(const std::string& S)
@@ -156,63 +145,16 @@ public:
 		return true;
 	}
 
-	/*
-	void aho_corasick()
-	{
-		int current_node = 0;
-		trie[current_node].link = 0;
-		for (int i = 0; i < int(trie[current_node].to.size()); ++i)
-		{
-			if (trie[current_node].edge[i] != -1)
-				trie[current_node].to[i] = trie[current_node].edge[i];
-			else
-				trie[current_node].to[i] = 0;
-		}
-
-		std::queue<int> processed_nodes;
-		processed_nodes.push(current_node);
-		while(processed_nodes.size() > 0)
-		{
-			current_node = processed_nodes.front();
-			processed_nodes.pop();
-			for (int i = 0; i < ALPHABET_SIZE; ++i)
-			{
-				int child = trie[current_node].edge[i];
-				if (child == -1) continue;
-				
-				if (current_node == 0)
-					trie[child].link = 0;
-				else
-					trie[child].link = trie[trie[current_node].link].to[i];
-				
-				for (int j = 0; j < ALPHABET_SIZE; ++j)
-				{
-					if (trie[child].edge[j] != -1)
-					{
-						trie[child].to[j] = trie[child].edge[j];
-					}
-					else
-					{
-						trie[child].to[j] = trie[trie[child].link].to[j];
-					}
-				}
-
-				processed_nodes.push(child);
-			}
-		}
-	}
-	*/
-
 	std::string get_word_from_index(int i) const
 	{
-		std::string s = "";
+		std::string word = "";
 		while (trie[i].par != -1)
 		{
-			s += trie[i].symbol;
+			word += trie[i].symbol;
 			i = trie[i].par;
 		}
-		std::reverse(s.begin(), s.end());
-		return s;
+		std::reverse(word.begin(), word.end());
+		return word;
 	}
 
 	iterator begin()
@@ -234,12 +176,6 @@ public:
 			for (int j = 0; j < int(trie[i].edge.size()); ++j)
 				if (trie[i].edge[j] != -1)
 					os << j << ":" << trie[i].edge[j] << ",";
-			/*
-			os << "}" << "," << trie[i].link << "," << "{";
-			for (int j = 0; j < int(trie[i].to.size()); ++j)
-				if (trie[i].to[j] > 0)
-					os << j << ":" << trie[i].to[j] << ",";
-			*/
 			os << "}}" << "\n";
 		}
 		return os;
@@ -251,13 +187,9 @@ std::ostream& operator<<(std::ostream& os, const Trie& t)
 	return t.out(os);
 }
 
-int main()
+std::string solve(const std::string& S)
 {
-	std::string S;
-	std::cin >> S;
-	//S = "aba..abba..aa.aaba.b.....a.a..a..bba.ab.aba.bbaa";
-
-	std::vector<int> dots(1, 0);
+    std::vector<int> dots(1, 0);
 	std::string word;
 	Trie t;
 	for (auto c : S)
@@ -282,13 +214,24 @@ int main()
 	}
 	if (word != "") t.add_word(word);
 
+    std::string ans;
 	int j = 0;
 	for (auto it = t.begin(); it != t.end(); ++it)
 	{
-		for (int i = 0; i < dots[j]; ++i) std::cout << ".";
-		std::cout << t.get_word_from_index(*it);
+		for (int i = 0; i < dots[j]; ++i) ans += ".";
+		ans += t.get_word_from_index(*it);
 		j += 1;
 	}
-	if (int(dots.size()) > j) for (int i = 0; i < dots[j]; ++i) std::cout << ".";
+	if (int(dots.size()) > j) for (int i = 0; i < dots[j]; ++i) ans += ".";
+
+    return ans;
+}
+
+int main()
+{
+	std::string S;
+	std::cin >> S;
+
+	std::cout << solve(S);
 }
 
