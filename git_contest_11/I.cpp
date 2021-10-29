@@ -3,17 +3,17 @@
 #include <vector>
 
 
-std::vector<int> CreateZFunction(const std::string& S)
+std::vector<int> CreateZFunction(const std::string& text)
 {
-    std::vector<int> z_function = std::vector<int>(S.size(), 0);
+    std::vector<int> z_function = std::vector<int>(text.size(), 0);
 
     int lu = 0;
     int ru = 1;
-    for (int i = 1; i < S.size(); ++i)
+    for (int i = 1; i < text.size(); ++i)
     {
         if (i >= ru)
         {
-            while (i + z_function[i] < S.size() && S[i + z_function[i]] == S[z_function[i]])
+            while (i + z_function[i] < text.size() && text[i + z_function[i]] == text[z_function[i]])
             {
                 ++z_function[i];
             }
@@ -23,7 +23,7 @@ std::vector<int> CreateZFunction(const std::string& S)
         else
         {
             z_function[i] = std::min(z_function[i - lu], ru - i);
-            while (i + z_function[i] < S.size() && S[i + z_function[i]] == S[z_function[i]])
+            while (i + z_function[i] < text.size() && S[i + z_function[i]] == text[z_function[i]])
             {
                 ++z_function[i];
             }

@@ -10,15 +10,18 @@ private:
     struct Node
     {
         static const int ALPHABET_SIZE = 2; 
-        std::vector<int32_t> indexes;
-        int32_t to[ALPHABET_SIZE];
-        int32_t height = 0;
-        int32_t link = -1;
+        std::vector<int> indexes;
+        int to[ALPHABET_SIZE];
+        int height = 0;
+        int link = -1;
         bool mark = false;
 
         Node(int height) : height(height), link(-1) 
         {
-            for (int i = 0; i < ALPHABET_SIZE; ++i) to[i] = -1;
+            for (int i = 0; i < ALPHABET_SIZE; ++i)
+            {
+                to[i] = -1;
+            }
         }
     };
 
@@ -96,7 +99,6 @@ public:
 
     std::ostream& out(std::ostream& os) const
     {
-        std::string S;
         for (int i = 0; i < int(trie.size()); ++i)
         {
             os << i << ":" << "{" << trie[i].height << ",";
@@ -114,31 +116,32 @@ public:
         return trie.size();
     }
 
-    int _dfs()
+    enum Color {White, Gray, Black};
+    int find_cycle()
     {
         // dfs
         std::vector<std::pair<int, int>> stack;
-        stack.push_back({0,0});
-        std::vector<int> used = std::vector<int>(trie.size(), 0);
+        stack.push_back({0, 0});
+        std::vector<Color> used = std::vector<Color>(trie.size(), White);
         while (stack.size() > 0)
         {
             int cur_node = stack.back().first;
             int cur_lett = stack.back().second;
             if (cur_lett == Trie::Node::ALPHABET_SIZE)
             {
-                used[cur_node] = 2;
+                used[cur_node] = Black;
                 stack.pop_back();
                 continue;
             }
-            used[cur_node] = 1;
+            used[cur_node] = Gray;
             stack.back().second += 1;
             cur_lett = stack.back().second;
             int node_to = trie[cur_node].to[cur_lett-1];
             if (trie[node_to].mark) continue;
-            int color = used[node_to];
-            if (color == 1) return true;
-            if (color == 2) continue;
-            stack.push_back(std::make_pair(node_to,0));
+            Color color = used[node_to];
+            if (color == Gray) return true;
+            if (color == Black) continue;
+            stack.push_back({node_to, 0});
         }
         return false;
     }
@@ -159,13 +162,20 @@ public:
             used[q.front()] = 1;
             for (int i = 0; i < Trie::Node::ALPHABET_SIZE; ++i)
             {
-                if (used[trie[q.front()].to[i]] == 0) q.push(trie[q.front()].to[i]);
+                if (used[trie[q.front()].to[i]] == 0)
+                {
+                    q.push(trie[q.front()].to[i]);
+                }
             }
-            if (trie[trie[q.front()].link].mark || trie[q.front()].indexes.size() > 0) trie[q.front()].mark = true;
+            int link = trie[q.front()].link;
+            if (trie[link].mark || !trie[q.front()].indexes.empty())
+            {
+                trie[q.front()].mark = true;
+            }
             q.pop();
         }
 
-        return _dfs();
+        return find_cycle();
     }
 };
 
