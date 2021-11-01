@@ -129,10 +129,10 @@ public:
         trie[current_node].term += 1;
     }
 
-    int find_word(const std::string& S) const
+    int find_word(const std::string& word) const
     {
         int current_node = 0;
-        for (const char& c : S)
+        for (const char& c : word)
         {
             if (trie[current_node].edge[c - STARTING_SYMBOL] == -1) return 0;
             current_node = trie[current_node].edge[c - STARTING_SYMBOL];
@@ -140,9 +140,9 @@ public:
         return (trie[current_node].term > 0) ? current_node : 0;
     }
 
-    bool remove_word(const std::string& S)
+    bool remove_word(const std::string& word)
     {
-        int current_node = find_word(S);
+        int current_node = find_word(word);
         if (current_node == 0) return false;
 
         trie[current_node].term -= 1;
@@ -173,7 +173,6 @@ public:
 
     std::ostream& out(std::ostream& os) const
     {
-        std::string S;
         for (int i = 0; i < int(trie.size()); ++i)
         {
             os << i << ":" << "{" << trie[i].term << "," << trie[i].par << "," << "{";
@@ -191,12 +190,12 @@ std::ostream& operator<<(std::ostream& os, const Trie& t)
     return t.out(os);
 }
 
-std::string solve(const std::string& S)
+std::string solve(const std::string& text)
 {
     std::vector<int> dots(1, 0);
     std::string word;
     Trie t;
-    for (auto c : S)
+    for (auto c : text)
     {
         if (c == '.')
         {
@@ -222,12 +221,20 @@ std::string solve(const std::string& S)
     int j = 0;
     for (auto it = t.begin(); it != t.end(); ++it)
     {
-        for (int i = 0; i < dots[j]; ++i) ans += ".";
+        for (int i = 0; i < dots[j]; ++i)
+        {
+            ans += ".";
+        }
         ans += t.get_word_from_index(*it);
         j += 1;
     }
-    if (int(dots.size()) > j) for (int i = 0; i < dots[j]; ++i) ans += ".";
-
+    if (int(dots.size()) > j)
+    {
+        for (int i = 0; i < dots[j]; ++i)
+        {
+            ans += ".";
+        }
+    }
     return ans;
 }
 
