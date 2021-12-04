@@ -3,7 +3,7 @@
 #include <queue>
 
 
-long long INFINITY = 1'000'000'000;
+const long long INFINITY = 1'000'000'000;
 
 struct Request
 {
@@ -119,7 +119,10 @@ public:
             else
             {
                 long long next_char_index = nodes[cur_node].get_substr_l() + cur_bias;
-                if (next_char_index >= already_constructed) return false;
+                if (next_char_index >= already_constructed)
+                {
+                    return false;
+                }
                 if (next_char_index >= nodes[cur_node].get_substr_r())
                 {
                     cur_bias = 0;
@@ -146,32 +149,32 @@ public:
                 cur_bias -= nodes[cur].get_size();
             }
             long long edge = source[pos - cur_bias + 1];
-            int& v = nodes[cur][edge];
-            long long t = source[nodes[v].get_substr_l() + cur_bias - 1];
-            if(v == 0)
+            int& ver = nodes[cur][edge];
+            long long to = source[nodes[ver].get_substr_l() + cur_bias - 1];
+            if(ver == 0)
             {
                 nodes.push_back(Node(nodes[0].get_alphabet_size(), cur, pos - cur_bias + 1, INFINITY));
-                v = (long long)nodes.size() - 1;
+                ver = (long long)nodes.size() - 1;
                 nodes[last].set_link(cur);
                 last = 0;
             }
-            else if(t == symbol)
+            else if(to == symbol)
             {
                 nodes[last].set_link(cur);
                 break;
             }
             else
             {
-                nodes.push_back(Node(nodes[0].get_alphabet_size(), cur, nodes[v].get_substr_l(), nodes[v].get_substr_l() + cur_bias - 1));
-                long long u = (long long)nodes.size() - 1;
-                nodes.push_back(Node(nodes[0].get_alphabet_size(), u, pos, INFINITY));
-                nodes[u][symbol] = (long long)nodes.size() - 1;
-                nodes[u][t] = v;
-                nodes[v].set_parent(u);
-                nodes[v].set_substr(nodes[v].get_substr_l() + (cur_bias - 1), nodes[v].get_substr_r());
-                v = u;
-                nodes[last].set_link(u);
-                last = u;
+                nodes.push_back(Node(nodes[0].get_alphabet_size(), cur, nodes[ver].get_substr_l(), nodes[ver].get_substr_l() + cur_bias - 1));
+                long long node = (long long)nodes.size() - 1;
+                nodes.push_back(Node(nodes[0].get_alphabet_size(), node, pos, INFINITY));
+                nodes[node][symbol] = (long long)nodes.size() - 1;
+                nodes[node][to] = ver;
+                nodes[ver].set_parent(node);
+                nodes[ver].set_substr(nodes[ver].get_substr_l() + (cur_bias - 1), nodes[ver].get_substr_r());
+                ver = node;
+                nodes[last].set_link(node);
+                last = node;
             }
             if(cur == 0)
                 --cur_bias;
