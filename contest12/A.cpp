@@ -4,12 +4,12 @@
 #include <functional>
 
 
-void CountSort(std::function<int(int)> element, std::vector<int>& ans, int alphabet_size)
+void CountSort(const std::string& S, std::vector<int>& ans, int alphabet_size)
 {
     std::vector<int> counter(alphabet_size, 0);
     for (int i = 0; i < (int)ans.size(); ++i)
     {
-        ++counter[element(i)];
+        ++counter[S[i]];
     }
     for (int i = 1; i < (int)counter.size(); ++i)
     {
@@ -17,7 +17,7 @@ void CountSort(std::function<int(int)> element, std::vector<int>& ans, int alpha
     }
     for (int i = (int)ans.size() - 1; i >= 0; --i)
     {
-        ans[--counter[element(i)]] = i;
+        ans[--counter[S[i]]] = i;
     }
 }
 
@@ -26,8 +26,7 @@ std::vector<int> CreateSuffixArray(const std::string& S)
     std::vector<int> classeq(S.size(), 0); // classeq[i] = color_of_suffix_from_i
     std::vector<int> ans(S.size(), 0); // ans[0] = first_suffix_in_alphabetical_order
     // set up classes of equivalence
-    auto value_function = [&S](int i) { return S[i]; };
-    CountSort(value_function, ans, 256);
+    CountSort(S, ans, 256);
     for (int i = 1; i < (int)S.size(); ++i)
     {
         classeq[ans[i]] = classeq[ans[i - 1]];
@@ -79,7 +78,10 @@ int main()
 
     std::vector<int> sufarr = CreateSuffixArray(S + "\1");
 
-    for (int i = 1; i < (int)sufarr.size(); ++i) std::cout << sufarr[i] + 1 << " ";
+    for (int i = 1; i < (int)sufarr.size(); ++i)
+    {
+        std::cout << sufarr[i] + 1 << " ";
+    }
 
     return 0;
 }
